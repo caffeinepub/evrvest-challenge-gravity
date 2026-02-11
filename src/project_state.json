@@ -1,0 +1,244 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 5,
+  "summary": "Build EVRVEST – Challenge Gravity as a premium, mobile-optimized cross-platform (web) performance training app for weighted-vest progressive overload, including onboarding, exercise catalog, plans, custom workouts, dashboard, AI coach chat, subscriptions, admin panel, brand styling, and specified mobile-readiness enhancements plus an exercise-screen dynamic load recommendation system.",
+  "architectural_notes": [
+    "Target a mobile-optimized web app experience while retaining desktop/web functionality.",
+    "Client-side instant load recommendation calculations on exercise screen; no server dependency.",
+    "Use a shared Header component with safe-area inset top padding and per-route Back behavior.",
+    "Wrap routes with AnimatePresence to support slide transitions between screens.",
+    "Use optimistic UI updates for WorkoutBuilder and Admin mutations.",
+    "Support pull-to-refresh interactions on Dashboard and Exercise list views.",
+    "Avoid calling router.navigate() during render; perform redirects in effects/route guards so RouterProvider can mount and app never renders a blank screen during auth/onboarding redirects."
+  ],
+  "known_issues": [
+    "Draft build shows a black screen on open, likely due to navigation/redirect logic running during render before RouterProvider mounts (redirect loop/return null)."
+  ],
+  "isFixRequest": true,
+  "existing_features": [
+    {
+      "id": "feature-implement-internet-identity-authentication-and-a-persistent-user-profile-model-that-stores-bodyweightkg-heightcm-experiencelevel-beginner-intermediate-advanced-elite-sportfocus-goals-weeklytrainingfrequency-subscriptiontier-free-pro-annualdiscounteligible-boolean-and-createdat-updatedat-timestamps",
+      "title": "Implement Internet Identity authentication and a persistent user profile model that stores: bodyweightKg, heightCm, experienceLevel (Beginner/Intermediate/Advanced/Elite), sportFocus, goals, weeklyTrainingFrequency, subscriptionTier (Free/Pro), annualDiscountEligible (boolean), and createdAt/updatedAt timestamps.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-smart-onboarding-flow-that-collects-athlete-profile-fields-and-calculates-an-initial-recommended-vest-load-using-the-bodyweight-algorithm-beginner-5-8-intermediate-8-12-advanced-10-15-elite-up-to-20-with-warning-and-save-the-chosen-confirmed-recommendation-to-the-user-profile",
+      "title": "Build a smart onboarding flow that collects athlete profile fields and calculates an initial recommended vest load using the % bodyweight algorithm (Beginner 5–8%, Intermediate 8–12%, Advanced 10–15%, Elite up to 20% with warning), and save the chosen/confirmed recommendation to the user profile.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-an-exercise-catalog-with-categories-by-sport-hyrox-bodyweight-running-trail-gym-rehab-each-exercise-must-include-title-image-placeholder-video-placeholder-primary-muscles-recommended-load-coaching-cue-difficulty-level-and-the-dynamic-load-fields-needed-later-modemultiplier-exercisemultiplier-modeminpct-modemaxpct-explanationtext-provide-filtering-by-experience-level-and-sport",
+      "title": "Create an exercise catalog with categories by sport (HYROX, Bodyweight, Running, Trail, Gym, Rehab). Each exercise must include: title, image placeholder, video placeholder, primary muscles, recommended load %, coaching cue, difficulty level, and the dynamic-load fields needed later (modeMultiplier, exerciseMultiplier, modeMinPct, modeMaxPct, explanationText). Provide filtering by experience level and sport.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-dynamic-load-recommendation-system-inside-the-exercise-detail-screen-only-using-existing-user-profile-data-and-exercise-multipliers-compute-baseload-from-bodyweightkg-experiencepercentage-beginner-0-06-intermediate-0-09-advanced-0-12-elite-0-15-compute-recraw-baseload-modemultiplier-exercisemultiplier-clamp-to-safemin-safemax-derived-from-modeminpct-modemaxpct-round-to-nearest-0-5kg-and-enforce-a-global-cap-of-20-bodyweight",
+      "title": "Implement the Dynamic Load Recommendation System inside the Exercise Detail screen only, using existing user profile data and exercise multipliers: compute BaseLoad from bodyweightKg × experiencePercentage (Beginner 0.06, Intermediate 0.09, Advanced 0.12, Elite 0.15), compute RecRaw = BaseLoad × modeMultiplier × exerciseMultiplier, clamp to SafeMin/SafeMax derived from modeMinPct/modeMaxPct, round to nearest 0.5kg, and enforce a global cap of 20% bodyweight.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-load-recommendation-card-ui-within-exercise-detail-that-shows-1-large-recommended-load-value-2-safe-range-safemin-safemax-rounded-3-a-color-slider-with-green-yellow-red-zones-4-dynamic-status-text-for-green-yellow-red-and-5-an-explanation-section-showing-exercise-explanationtext",
+      "title": "Add a “Load Recommendation Card” UI within Exercise Detail that shows: (1) large recommended load value, (2) safe range (SafeMin–SafeMax, rounded), (3) a color slider with green/yellow/red zones, (4) dynamic status text for green/yellow/red, and (5) an explanation section showing exercise.explanationText.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-pre-built-hyrox-training-plans-in-4-week-6-week-and-8-week-variants-that-include-skierg-intervals-lunges-row-intervals-burpees-treadmill-incline-and-stairmaster-progression-include-weekly-progression-logic-with-vest-load-increase-include-a-deload-week-and-collect-rpe-feedback-after-workouts-to-adjust-future-load-recommendations-within-the-plan",
+      "title": "Create pre-built HYROX training plans in 4-week, 6-week, and 8-week variants that include SkiErg intervals, lunges, row intervals, burpees, treadmill incline, and stairmaster progression; include weekly progression logic with vest load increase, include a deload week, and collect RPE feedback after workouts to adjust future load recommendations within the plan.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-custom-workout-builder-that-allows-users-to-select-exercises-define-sets-reps-rest-choose-vest-load-calculate-session-load-volume-and-an-intensity-score-and-save-workout-templates-for-reuse",
+      "title": "Implement a custom Workout Builder that allows users to select exercises, define sets/reps/rest, choose vest load, calculate session load volume and an intensity score, and save workout templates for reuse.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-performance-dashboard-showing-weekly-load-volume-average-vest-bodyweight-workout-frequency-elevation-meters-stability-score-and-progress-graphs-include-pull-to-refresh-behavior-on-mobile-for-dashboard-data",
+      "title": "Create a performance dashboard showing: weekly load volume, average vest % bodyweight, workout frequency, elevation meters, stability score, and progress graphs; include pull-to-refresh behavior on mobile for dashboard data.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-an-ai-coach-chat-screen-named-gravityai-that-provides-load-recommendations-plan-creation-guidance-recovery-advice-exercise-technique-help-and-product-education-using-an-on-device-rule-based-knowledge-system-no-external-llm-calls-with-a-direct-athletic-performance-focused-tone",
+      "title": "Implement an AI Coach chat screen named “GravityAI” that provides load recommendations, plan creation guidance, recovery advice, exercise technique help, and product education using an on-device/rule-based knowledge system (no external LLM calls), with a direct, athletic, performance-focused tone.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-subscription-tiers-and-feature-gating-free-tier-includes-load-calculator-and-limited-exercises-pro-tier-unlocks-full-plans-gravityai-and-dashboard-analytics-annual-pro-subscribers-have-annualdiscounteligible-true-in-their-profile-provide-ui-for-viewing-tier-status-and-upgrading-without-requiring-external-payment-integration",
+      "title": "Implement subscription tiers and feature gating: Free tier includes load calculator and limited exercises; Pro tier unlocks full plans, GravityAI, and dashboard analytics; annual Pro subscribers have annualDiscountEligible = true in their profile. Provide UI for viewing tier status and upgrading (without requiring external payment integration).",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-an-admin-panel-restricted-to-admin-principals-that-can-add-edit-exercises-including-dynamic-load-fields-add-edit-plans-add-monthly-challenges-and-manage-subscription-tiers-e-g-set-users-to-pro-annual",
+      "title": "Create an Admin Panel restricted to admin principals that can: add/edit exercises (including dynamic-load fields), add/edit plans, add monthly challenges, and manage subscription tiers (e.g., set users to Pro/Annual).",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-evrvest-brand-identity-across-the-entire-app-ui-dark-mode-default-black-dominant-backgrounds-deep-performance-blue-as-primary-accent-for-active-states-buttons-highlights-progress-indicators-recommended-load-emphasis-white-typography-strong-bold-headlines-minimalist-sharp-aesthetic-no-gradients-no-playful-rounding-no-unnecessary-shadows-and-optionally-include-brand-messages-subtly-in-ui-copy",
+      "title": "Apply EVRVEST brand identity across the entire app UI: dark mode default, black dominant backgrounds, deep performance blue as primary accent for active states/buttons/highlights/progress indicators/recommended load emphasis, white typography, strong bold headlines, minimalist sharp aesthetic (no gradients, no playful rounding, no unnecessary shadows), and optionally include brand messages subtly in UI copy.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-mobile-readiness-enhancements-while-keeping-web-functionality-add-account-deletion-to-profile-set-global-css-overscroll-behavior-none-and-user-select-none-except-for-text-content-use-a-shared-header-component-that-shows-a-back-button-on-profile-and-admin-panel-wrap-route-transitions-in-animatepresence-with-slide-transitions-apply-safe-area-inset-top-for-header-padding-add-pull-to-refresh-to-dashboard-and-exercise-lists",
+      "title": "Implement mobile-readiness enhancements while keeping web functionality: add account deletion to Profile; set global CSS overscroll-behavior: none and user-select: none (except for text content); use a shared Header component that shows a Back button on Profile and Admin Panel; wrap route transitions in AnimatePresence with slide transitions; apply safe-area-inset-top for header padding; add pull-to-refresh to Dashboard and Exercise lists.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-optimistic-ui-updates-react-query-for-mutations-in-workout-builder-saving-updating-templates-and-logged-workouts-and-admin-panel-crud-operations-including-rollback-on-error-and-user-visible-error-messaging",
+      "title": "Add optimistic UI updates (React Query) for mutations in Workout Builder (saving/updating templates and logged workouts) and Admin panel (CRUD operations), including rollback on error and user-visible error messaging.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-bottom-tab-navigation-for-primary-app-sections-e-g-dashboard-exercises-plans-builder-profile-ensuring-a-clean-mobile-first-layout-and-keeping-desktop-web-usability",
+      "title": "Implement bottom-tab navigation for primary app sections (e.g., Dashboard, Exercises, Plans, Builder, Profile), ensuring a clean mobile-first layout and keeping desktop web usability.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-black-screen-on-open-issue-by-removing-all-imperative-navigation-calls-from-the-appcontent-render-path-in-frontend-src-app-tsx-and-ensuring-the-app-always-renders-a-visible-ui-state-routerprovider-or-a-loading-auth-screen-while-auth-profile-state-is-being-resolved",
+      "title": "Fix the black-screen-on-open issue by removing all imperative navigation calls from the AppContent render path in frontend/src/App.tsx and ensuring the app always renders a visible UI state (RouterProvider or a loading/auth screen) while auth/profile state is being resolved.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-route-level-guarding-redirect-behavior-using-tanstack-router-mechanisms-e-g-route-beforeload-loader-redirection-or-equivalent-so-that-authentication-and-onboarding-redirects-happen-within-the-router-lifecycle-rather-than-from-appcontent-render-logic",
+      "title": "Implement route-level guarding/redirect behavior using TanStack Router mechanisms (e.g., route beforeLoad/loader redirection or equivalent) so that authentication and onboarding redirects happen within the router lifecycle rather than from AppContent render logic.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-safe-fallback-ui-for-unexpected-routing-auth-errors-so-the-app-never-displays-an-empty-screen-the-fallback-must-be-visually-consistent-with-the-existing-evrvest-dark-theme-and-use-clear-english-user-facing-text",
+      "title": "Add a safe fallback UI for unexpected routing/auth errors so the app never displays an empty screen; the fallback must be visually consistent with the existing EVRVEST dark theme and use clear English user-facing text.",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Implement smart onboarding flow capturing athlete profile data and calculating initial recommended vest load by experience % bodyweight with warnings; store in user profile.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Create exercise catalog categorized by sport with exercise detail fields (image/video placeholders, muscles, recommended load %, cues, difficulty) and filters by level and sport.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add pre-built HYROX training plans (4/6/8-week) with required workouts, weekly progression, deload week, and RPE feedback to adjust load.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Build custom Workout Builder: select exercises, configure sets/reps/rest/load, compute session load volume + intensity score, and save templates.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Create performance dashboard with weekly load volume, avg vest % BW, workout frequency, elevation meters, stability score, and progress graphs.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Implement AI Coach chat (“GravityAI”) for load recommendations, plan creation, recovery advice, technique, and product education with direct athletic tone.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Add subscription model: Free tier (load calculator + limited exercises) and Pro tier (€5/mo or €49/yr) unlocking plans, AI coach, analytics; annual subscribers get 10% shop discount flag in profile.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Create admin panel to manage exercises, plans, monthly challenges, and subscription tiers.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Apply EVRVEST brand identity across the app (dark mode default, black dominant UI, deep performance blue accents, strong typography, minimalist sharp aesthetic, brand messages).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Mobile readiness updates while keeping web functionality: account deletion on Profile; global CSS overscroll-behavior none + user-select none (except text); shared Header with Back button on Profile/Admin; AnimatePresence slide transitions; safe-area-inset-top header padding; optimistic updates for WorkoutBuilder/Admin mutations; pull-to-refresh on Dashboard and Exercise lists.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Add Dynamic Load Recommendation System inside existing Exercise Detail screen using user profile bodyweight/experience plus exercise multipliers & safe caps, including load zones UI card and auto-recalculation.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-26",
+      "summary": "Implement core backend data persistence and APIs in a single Motoko actor to support: user profiles, exercises, plans, challenges, workout templates, workout logs (including RPE), and admin-managed subscription status; ensure per-user scoping and admin authorization checks.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "EVRVEST – Challenge Gravity",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

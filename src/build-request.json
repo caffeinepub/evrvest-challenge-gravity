@@ -1,0 +1,77 @@
+{
+  "kind": "build_request",
+  "title": "Fix black screen on app open by correcting router redirect logic",
+  "priority": "high",
+  "requirements": [
+    {
+      "id": "REQ-17",
+      "text": "Fix the black-screen-on-open issue by removing all imperative navigation calls from the AppContent render path in frontend/src/App.tsx and ensuring the app always renders a visible UI state (RouterProvider or a loading/auth screen) while auth/profile state is being resolved.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages-4",
+          "recent-messages-5"
+        ],
+        "quotes": [
+          "When i open the draft it is just a black screen",
+          "A completely black screen usually means the app is rendering *nothing* because the router keeps redirecting during render. This happens when `router.navigate()` is called inside the component return path."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Opening the draft app no longer results in a black screen on first load.",
+        "frontend/src/App.tsx no longer calls router.navigate(...) during render (i.e., not inside conditional returns that return null).",
+        "When unauthenticated, the app renders a Login screen (or a loading screen while auth initializes) without rendering a blank page.",
+        "When authenticated but missing a user profile, the app routes to /onboarding without any render-loop/blank-screen behavior.",
+        "When authenticated and onboarding is complete, navigating to /onboarding redirects back to / without a blank screen."
+      ]
+    },
+    {
+      "id": "REQ-18",
+      "text": "Implement route-level guarding/redirect behavior using TanStack Router mechanisms (e.g., route beforeLoad/loader redirection or equivalent) so that authentication and onboarding redirects happen within the router lifecycle rather than from AppContent render logic.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages-5"
+        ],
+        "quotes": [
+          "The simplest fix is:\n- Don’t navigate inside the render flow.\n- Instead, show nothing until routing state is consistent."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Redirect decisions for auth/onboarding are executed via TanStack Router route lifecycle (not via direct router.navigate calls inside AppContent render).",
+        "Directly entering the following URLs behaves correctly without blank screens: /login, /onboarding, /, /exercises, /plans (subject to auth/onboarding state)."
+      ]
+    },
+    {
+      "id": "REQ-19",
+      "text": "Add a safe fallback UI for unexpected routing/auth errors so the app never displays an empty screen; the fallback must be visually consistent with the existing EVRVEST dark theme and use clear English user-facing text.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages-4"
+        ],
+        "quotes": [
+          "When i open the draft it is just a black screen"
+        ]
+      },
+      "acceptanceCriteria": [
+        "If an unexpected error occurs during initial auth/profile/routing resolution, the user sees a readable error state (not a blank screen).",
+        "The fallback provides at minimum: a short error message in English and a way to retry (e.g., reload button) without requiring developer tools."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not edit any files under frontend/src/components/ui (read-only shadcn components); compose them instead if needed.",
+    "Do not modify immutable frontend hook files: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
+    "Backend must remain single-actor; no backend schema changes are required for this routing fix."
+  ],
+  "nonGoals": [
+    "Adding new product features beyond fixing routing/redirect behavior and preventing blank screens.",
+    "Changing the authentication provider (Internet Identity remains the only auth method).",
+    "Implementing new backend endpoints or changing persistence models."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

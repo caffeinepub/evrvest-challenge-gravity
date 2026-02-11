@@ -1,0 +1,10 @@
+{
+  "frontend/src/pages/DashboardPage.tsx": "Performance dashboard displaying mock metrics (weekly volume, avg vest %, frequency, elevation, stability) with pull-to-refresh support via wrapper function.",
+  "frontend/src/pages/ProfilePage.tsx": "Profile settings page for updating athlete data (bodyweight, height, experience, sport, goals, frequency) and account deletion with proper enum type usage.",
+  "frontend/src/pages/UpgradePage.tsx": "Subscription upgrade page allowing users to choose between Monthly Pro and Annual Pro tiers with discount code support using proper SubscriptionTier enum.",
+  "frontend/src/App.tsx": "Main app component with TanStack Router setup, QueryClient provider, and theme provider; router configured with error boundaries and loading states, no imperative navigation during render.",
+  "frontend/src/components/routing/AppLoadingScreen.tsx": "Reusable dark-theme loading screen component with spinner and EVRVEST branding for auth/profile resolution and router pending states.",
+  "frontend/src/components/routing/RouteErrorFallback.tsx": "Dark-theme error fallback UI component displaying error messages with a reload button for unexpected routing or auth errors.",
+  "frontend/src/pages/LoginPage.tsx": "Login page with Internet Identity integration; handles authenticated user redirects to onboarding or dashboard based on profile state using useEffect navigation.",
+  "frontend/src/pages/OnboardingPage.tsx": "Multi-step onboarding flow for creating athlete profiles with auth guards; redirects unauthenticated users to login and users with existing profiles to dashboard."
+}

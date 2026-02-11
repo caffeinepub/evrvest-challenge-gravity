@@ -1,0 +1,65 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-fix-the-black-screen-on-open-issue-by-removing-all-imperative-navigation-calls-from-the-appcontent-render-path-in-frontend-src-app-tsx-and-ensuring-the-app-always-renders-a-visible-ui-state-routerprovider-or-a-loading-auth-screen-while-auth-profile-state-is-being-resolved",
+      "featureTitle": "Fix the black-screen-on-open issue by removing all imperative navigation calls from the AppContent render path in frontend/src/App.tsx and ensuring the app always renders a visible UI state (RouterProvider or a loading/auth screen) while auth/profile state is being resolved.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/routing/AppLoadingScreen.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-17"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-route-level-guarding-redirect-behavior-using-tanstack-router-mechanisms-e-g-route-beforeload-loader-redirection-or-equivalent-so-that-authentication-and-onboarding-redirects-happen-within-the-router-lifecycle-rather-than-from-appcontent-render-logic",
+      "featureTitle": "Implement route-level guarding/redirect behavior using TanStack Router mechanisms (e.g., route beforeLoad/loader redirection or equivalent) so that authentication and onboarding redirects happen within the router lifecycle rather than from AppContent render logic.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/pages/LoginPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-18"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-safe-fallback-ui-for-unexpected-routing-auth-errors-so-the-app-never-displays-an-empty-screen-the-fallback-must-be-visually-consistent-with-the-existing-evrvest-dark-theme-and-use-clear-english-user-facing-text",
+      "featureTitle": "Add a safe fallback UI for unexpected routing/auth errors so the app never displays an empty screen; the fallback must be visually consistent with the existing EVRVEST dark theme and use clear English user-facing text.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/routing/RouteErrorFallback.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-19"
+      ],
+      "confidence": "high"
+    }
+  ]
+}
