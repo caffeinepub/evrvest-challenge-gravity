@@ -1,51 +1,70 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T23:29:22.944Z",
+  "generatedAt": "2026-02-11T23:44:25.792Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 4,
+    "implemented": 4,
     "items": [
       {
-        "id": "REQ-17",
-        "summary": "Fix the black-screen-on-open issue by removing all imperative navigation calls from the AppContent render path in frontend/src/App.tsx and ensuring the app always renders a visible UI state (RouterProvider or a loading/auth screen) while auth/profile state is being resolved.",
+        "id": "REQ-23",
+        "summary": "Ensure the app never renders an empty screen during startup by rendering a visible full-screen loading UI from the root route while Internet Identity initialization and the initial user profile query are unresolved.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/App.tsx",
-          "frontend/src/components/routing/AppLoadingScreen.tsx"
+          "frontend/src/components/routing/AppLoadingScreen.tsx",
+          "frontend/src/lib/routerAuthStore.ts"
         ],
         "matchedFiles": [
           "frontend/src/App.tsx",
-          "frontend/src/components/routing/AppLoadingScreen.tsx"
+          "frontend/src/components/routing/AppLoadingScreen.tsx",
+          "frontend/src/lib/routerAuthStore.ts"
         ]
       },
       {
-        "id": "REQ-18",
-        "summary": "Implement route-level guarding/redirect behavior using TanStack Router mechanisms (e.g., route beforeLoad/loader redirection or equivalent) so that authentication and onboarding redirects happen within the router lifecycle rather than from AppContent render logic.",
+        "id": "REQ-24",
+        "summary": "Update TanStack Router auth/onboarding route guards so that if auth/profile resolution times out or errors, the router renders a safe fallback UI (via router error handling) instead of continuing into a route that may render nothing.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/App.tsx",
-          "frontend/src/pages/LoginPage.tsx"
+          "frontend/src/components/routing/RouteErrorFallback.tsx",
+          "frontend/src/lib/routerAuthStore.ts"
         ],
         "matchedFiles": [
           "frontend/src/App.tsx",
-          "frontend/src/pages/LoginPage.tsx"
+          "frontend/src/components/routing/RouteErrorFallback.tsx",
+          "frontend/src/lib/routerAuthStore.ts"
         ]
       },
       {
-        "id": "REQ-19",
-        "summary": "Add a safe fallback UI for unexpected routing/auth errors so the app never displays an empty screen; the fallback must be visually consistent with the existing EVRVEST dark theme and use clear English user-facing text.",
+        "id": "REQ-25",
+        "summary": "Add a deterministic startup recovery path: when auth/profile resolution fails, provide a user-visible option to reset the startup session (e.g., reload application and/or clear any persisted URL/session routing parameters used for navigation) so users can escape a broken state.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/components/routing/RouteErrorFallback.tsx",
+          "frontend/src/utils/urlParams.ts",
           "frontend/src/App.tsx"
         ],
         "matchedFiles": [
           "frontend/src/components/routing/RouteErrorFallback.tsx",
+          "frontend/src/utils/urlParams.ts",
+          "frontend/src/App.tsx"
+        ]
+      },
+      {
+        "id": "REQ-26",
+        "summary": "Add lightweight, production-safe diagnostics for the startup/auth resolution path to help identify remaining black-screen causes (e.g., console warnings with enough context to distinguish identity init vs profile fetch vs router guard stage).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/lib/routerAuthStore.ts",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/lib/routerAuthStore.ts",
           "frontend/src/App.tsx"
         ]
       }
@@ -53,15 +72,14 @@
   },
   "changedFiles": [
     "build-request.json",
-    "build-template/README.md",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/src/App.tsx",
     "frontend/src/components/routing/AppLoadingScreen.tsx",
     "frontend/src/components/routing/RouteErrorFallback.tsx",
-    "frontend/src/pages/LoginPage.tsx",
-    "frontend/src/pages/OnboardingPage.tsx",
+    "frontend/src/lib/routerAuthStore.ts",
+    "frontend/src/utils/urlParams.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

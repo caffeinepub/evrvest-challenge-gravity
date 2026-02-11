@@ -206,3 +206,39 @@ export function getSecretFromHash(paramName: string): string | null {
 export function getSecretParameter(paramName: string): string | null {
     return getSecretFromHash(paramName);
 }
+
+/**
+ * Clears all startup-related session state and URL parameters.
+ * Used by RouteErrorFallback to perform a clean startup reset.
+ * This ensures that any persisted routing state that might cause
+ * startup issues is cleared before reloading.
+ */
+export function clearAllStartupState(): void {
+    try {
+        // Clear any routing-related session storage
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < sessionStorage.length; i++) {
+            const key = sessionStorage.key(i);
+            if (key) {
+                keysToRemove.push(key);
+            }
+        }
+        
+        keysToRemove.forEach(key => {
+            sessionStorage.removeItem(key);
+        });
+        
+        // Clear any URL parameters from hash
+        if (window.location.hash && window.location.hash.includes('?')) {
+            const hashPath = window.location.hash.split('?')[0];
+            if (window.history.replaceState) {
+                const newUrl = window.location.pathname + window.location.search + hashPath;
+                window.history.replaceState(null, '', newUrl);
+            }
+        }
+        
+        console.warn('[Startup Reset] Cleared all session state and URL parameters');
+    } catch (error) {
+        console.warn('[Startup Reset] Failed to clear startup state:', error);
+    }
+}

@@ -1,74 +1,89 @@
 {
   "kind": "build_request",
-  "title": "Fix black screen on app open by correcting router redirect logic",
+  "title": "Fix persistent black screen on app open by guaranteeing a visible startup UI and fail-safe auth routing",
   "priority": "high",
   "requirements": [
     {
-      "id": "REQ-17",
-      "text": "Fix the black-screen-on-open issue by removing all imperative navigation calls from the AppContent render path in frontend/src/App.tsx and ensuring the app always renders a visible UI state (RouterProvider or a loading/auth screen) while auth/profile state is being resolved.",
+      "id": "REQ-23",
+      "text": "Ensure the app never renders an empty screen during startup by rendering a visible full-screen loading UI from the root route while Internet Identity initialization and the initial user profile query are unresolved.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages-4",
-          "recent-messages-5"
+          "msg-4"
         ],
         "quotes": [
-          "When i open the draft it is just a black screen",
-          "A completely black screen usually means the app is rendering *nothing* because the router keeps redirecting during render. This happens when `router.navigate()` is called inside the component return path."
+          "It is still a black screen. What the fuck? Fix it now."
         ]
       },
       "acceptanceCriteria": [
-        "Opening the draft app no longer results in a black screen on first load.",
-        "frontend/src/App.tsx no longer calls router.navigate(...) during render (i.e., not inside conditional returns that return null).",
-        "When unauthenticated, the app renders a Login screen (or a loading screen while auth initializes) without rendering a blank page.",
-        "When authenticated but missing a user profile, the app routes to /onboarding without any render-loop/blank-screen behavior.",
-        "When authenticated and onboarding is complete, navigating to /onboarding redirects back to / without a blank screen."
+        "When the app first loads (hard refresh) and auth/profile state is still resolving, the user sees a full-screen loading UI (not a black/blank screen).",
+        "This loading UI is shown regardless of which route is initially loaded (e.g., '/', '/login', '/exercises').",
+        "The loading UI uses clear English user-facing text."
       ]
     },
     {
-      "id": "REQ-18",
-      "text": "Implement route-level guarding/redirect behavior using TanStack Router mechanisms (e.g., route beforeLoad/loader redirection or equivalent) so that authentication and onboarding redirects happen within the router lifecycle rather than from AppContent render logic.",
+      "id": "REQ-24",
+      "text": "Update TanStack Router auth/onboarding route guards so that if auth/profile resolution times out or errors, the router renders a safe fallback UI (via router error handling) instead of continuing into a route that may render nothing.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages-5"
+          "msg-4"
         ],
         "quotes": [
-          "The simplest fix is:\n- Don’t navigate inside the render flow.\n- Instead, show nothing until routing state is consistent."
+          "It is still a black screen. What the fuck? Fix it now."
         ]
       },
       "acceptanceCriteria": [
-        "Redirect decisions for auth/onboarding are executed via TanStack Router route lifecycle (not via direct router.navigate calls inside AppContent render).",
-        "Directly entering the following URLs behaves correctly without blank screens: /login, /onboarding, /, /exercises, /plans (subject to auth/onboarding state)."
+        "If auth/profile resolution fails (e.g., timeout), the UI displays an error/fallback screen consistent with the dark EVRVEST theme (not a black/blank screen).",
+        "The fallback screen includes an English explanation and a way to recover (e.g., reload).",
+        "Route guards do not swallow failures in a way that allows the app to proceed into an indeterminate state with no visible UI."
       ]
     },
     {
-      "id": "REQ-19",
-      "text": "Add a safe fallback UI for unexpected routing/auth errors so the app never displays an empty screen; the fallback must be visually consistent with the existing EVRVEST dark theme and use clear English user-facing text.",
+      "id": "REQ-25",
+      "text": "Add a deterministic startup recovery path: when auth/profile resolution fails, provide a user-visible option to reset the startup session (e.g., reload application and/or clear any persisted URL/session routing parameters used for navigation) so users can escape a broken state.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages-4"
+          "msg-4",
+          "msg-6"
         ],
         "quotes": [
-          "When i open the draft it is just a black screen"
+          "Fix it now.",
+          "Yes!"
         ]
       },
       "acceptanceCriteria": [
-        "If an unexpected error occurs during initial auth/profile/routing resolution, the user sees a readable error state (not a blank screen).",
-        "The fallback provides at minimum: a short error message in English and a way to retry (e.g., reload button) without requiring developer tools."
+        "When startup resolution fails, the fallback UI provides a clearly labeled recovery action in English (e.g., “Reload Application”).",
+        "Invoking the recovery action results in the app attempting startup again and showing loading/fallback UI as appropriate (never blank)."
+      ]
+    },
+    {
+      "id": "REQ-26",
+      "text": "Add lightweight, production-safe diagnostics for the startup/auth resolution path to help identify remaining black-screen causes (e.g., console warnings with enough context to distinguish identity init vs profile fetch vs router guard stage).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "It is still a black screen. What the fuck? Fix it now."
+        ]
+      },
+      "acceptanceCriteria": [
+        "On startup issues, console logs clearly indicate which phase is blocked or failed (identity init, profile load, router guard wait).",
+        "Diagnostics do not expose sensitive user data."
       ]
     }
   ],
   "constraints": [
-    "Do not edit any files under frontend/src/components/ui (read-only shadcn components); compose them instead if needed.",
-    "Do not modify immutable frontend hook files: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
-    "Backend must remain single-actor; no backend schema changes are required for this routing fix."
+    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts or frontend/src/hooks/useActor.ts (immutable paths).",
+    "Keep auth/onboarding redirects implemented through TanStack Router lifecycle (beforeLoad/loader + redirect), not imperative navigation during render.",
+    "All user-facing text must be English."
   ],
   "nonGoals": [
-    "Adding new product features beyond fixing routing/redirect behavior and preventing blank screens.",
-    "Changing the authentication provider (Internet Identity remains the only auth method).",
-    "Implementing new backend endpoints or changing persistence models."
+    "Adding new backend APIs or changing Motoko state/schema as part of this black-screen fix.",
+    "Adding third-party monitoring/analytics services."
   ],
   "imageRequirements": {
     "required": [],

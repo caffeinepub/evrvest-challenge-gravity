@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
+import { clearAllStartupState } from '@/utils/urlParams';
 
 interface RouteErrorFallbackProps {
   error?: Error;
@@ -9,12 +10,20 @@ interface RouteErrorFallbackProps {
 
 export default function RouteErrorFallback({ error, reset }: RouteErrorFallbackProps) {
   const handleReload = () => {
+    // Clear all startup-related session state before reloading
+    clearAllStartupState();
+    
     if (reset) {
       reset();
     } else {
       window.location.reload();
     }
   };
+
+  // Determine if this is a startup/auth error
+  const isStartupError = error?.message?.includes('startup') || 
+                         error?.message?.includes('authentication') || 
+                         error?.message?.includes('profile');
 
   return (
     <div className="flex h-screen items-center justify-center bg-background px-4">
@@ -25,7 +34,9 @@ export default function RouteErrorFallback({ error, reset }: RouteErrorFallbackP
           </div>
         </div>
         
-        <h1 className="mb-2 text-2xl font-bold">Something went wrong</h1>
+        <h1 className="mb-2 text-2xl font-bold text-foreground">
+          {isStartupError ? 'Startup Error' : 'Something Went Wrong'}
+        </h1>
         <p className="mb-6 text-muted-foreground">
           {error?.message || 'An unexpected error occurred while loading the application.'}
         </p>
@@ -36,6 +47,12 @@ export default function RouteErrorFallback({ error, reset }: RouteErrorFallbackP
         >
           Reload Application
         </Button>
+        
+        {isStartupError && (
+          <p className="mt-4 text-xs text-muted-foreground">
+            This will clear your session and restart the application.
+          </p>
+        )}
       </div>
     </div>
   );

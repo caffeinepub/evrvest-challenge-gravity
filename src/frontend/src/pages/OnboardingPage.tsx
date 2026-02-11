@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useCreateProfile, useGetCallerUserProfile } from '../hooks/useCurrentUser';
+import { useCreateProfile } from '../hooks/useCurrentUser';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,7 +16,6 @@ import AppLoadingScreen from '../components/routing/AppLoadingScreen';
 export default function OnboardingPage() {
   const navigate = useNavigate();
   const { identity, isInitializing } = useInternetIdentity();
-  const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
   const createProfile = useCreateProfile();
   
   const [step, setStep] = useState(1);
@@ -26,22 +25,6 @@ export default function OnboardingPage() {
   const [sport, setSport] = useState<SportFocus>(SportFocus.general);
   const [goals, setGoals] = useState('');
   const [frequency, setFrequency] = useState('3');
-
-  // Redirect if not authenticated or already has profile
-  useEffect(() => {
-    if (isInitializing || (identity && profileLoading && !isFetched)) {
-      return;
-    }
-
-    if (!identity) {
-      navigate({ to: '/login' });
-      return;
-    }
-
-    if (userProfile !== null) {
-      navigate({ to: '/' });
-    }
-  }, [identity, isInitializing, userProfile, profileLoading, isFetched, navigate]);
 
   const handleSubmit = async () => {
     try {
@@ -59,13 +42,13 @@ export default function OnboardingPage() {
     }
   };
 
-  // Show loading while checking auth/profile state
-  if (isInitializing || (identity && profileLoading && !isFetched)) {
+  // Show loading while initializing
+  if (isInitializing) {
     return <AppLoadingScreen />;
   }
 
-  // Show loading while redirecting
-  if (!identity || userProfile !== null) {
+  // Show loading if not authenticated (router will redirect)
+  if (!identity) {
     return <AppLoadingScreen />;
   }
 

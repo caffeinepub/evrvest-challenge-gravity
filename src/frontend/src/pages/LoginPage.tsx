@@ -1,42 +1,19 @@
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useGetCallerUserProfile } from '../hooks/useCurrentUser';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from '@tanstack/react-router';
-import { useEffect } from 'react';
 import AppLoadingScreen from '../components/routing/AppLoadingScreen';
 
 export default function LoginPage() {
-  const { login, loginStatus, identity, isInitializing } = useInternetIdentity();
-  const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
-  const navigate = useNavigate();
+  const { login, isLoggingIn, identity, isInitializing } = useInternetIdentity();
 
-  // Handle authenticated user redirects
-  useEffect(() => {
-    if (!identity || isInitializing || (profileLoading && !isFetched)) {
-      return;
-    }
-
-    // User is authenticated and profile state is resolved
-    if (userProfile === null) {
-      // No profile - go to onboarding
-      navigate({ to: '/onboarding' });
-    } else {
-      // Has profile - go to dashboard
-      navigate({ to: '/' });
-    }
-  }, [identity, isInitializing, userProfile, profileLoading, isFetched, navigate]);
-
-  // Show loading while checking auth state
-  if (isInitializing || (identity && (profileLoading && !isFetched))) {
+  // Show loading while initializing or during login
+  if (isInitializing || isLoggingIn) {
     return <AppLoadingScreen />;
   }
 
-  // If already authenticated, show loading while redirect happens
+  // If authenticated, show loading while router redirects
   if (identity) {
     return <AppLoadingScreen />;
   }
-
-  const isLoggingIn = loginStatus === 'logging-in';
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 5,
+  "projectStateVersion": 9,
   "summary": "Build EVRVEST – Challenge Gravity as a premium, mobile-optimized cross-platform (web) performance training app for weighted-vest progressive overload, including onboarding, exercise catalog, plans, custom workouts, dashboard, AI coach chat, subscriptions, admin panel, brand styling, and specified mobile-readiness enhancements plus an exercise-screen dynamic load recommendation system.",
   "architectural_notes": [
     "Target a mobile-optimized web app experience while retaining desktop/web functionality.",
@@ -12,7 +12,8 @@
     "Avoid calling router.navigate() during render; perform redirects in effects/route guards so RouterProvider can mount and app never renders a blank screen during auth/onboarding redirects."
   ],
   "known_issues": [
-    "Draft build shows a black screen on open, likely due to navigation/redirect logic running during render before RouterProvider mounts (redirect loop/return null)."
+    "Draft build shows a black screen on open, likely due to navigation/redirect logic running during render before RouterProvider mounts (redirect loop/return null).",
+    "Black screen on open persists in the latest draft build (reported after 'Version 2' build)."
   ],
   "isFixRequest": true,
   "existing_features": [
@@ -157,6 +158,62 @@
       "title": "Add a safe fallback UI for unexpected routing/auth errors so the app never displays an empty screen; the fallback must be visually consistent with the existing EVRVEST dark theme and use clear English user-facing text.",
       "reqIds": [
         "REQ-19"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-duplicate-react-query-provider-so-the-entire-app-including-internet-identity-initialization-and-all-profile-queries-uses-exactly-one-queryclient-instance-preventing-stalls-blank-screens-caused-by-split-caches",
+      "title": "Remove the duplicate React Query provider so the entire app (including Internet Identity initialization and all profile queries) uses exactly one QueryClient instance, preventing stalls/blank screens caused by split caches.",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-route-level-auth-onboarding-guarding-using-tanstack-router-lifecycle-hooks-e-g-beforeload-loader-with-redirect-so-initial-navigation-never-depends-on-useeffect-based-imperative-redirects-that-can-lead-to-a-black-screen-on-first-paint",
+      "title": "Implement route-level auth/onboarding guarding using TanStack Router lifecycle hooks (e.g., `beforeLoad`/`loader` with `redirect`) so initial navigation never depends on `useEffect`-based imperative redirects that can lead to a black screen on first paint.",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-safe-not-found-route-catch-all-and-ensure-router-errors-always-render-routeerrorfallback-never-a-blank-screen-with-clear-english-user-facing-text-consistent-with-the-existing-evrvest-dark-theme",
+      "title": "Add a safe 'Not Found' route (catch-all) and ensure router errors always render `RouteErrorFallback` (never a blank screen), with clear English user-facing text consistent with the existing EVRVEST dark theme.",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-app-never-renders-an-empty-screen-during-startup-by-rendering-a-visible-full-screen-loading-ui-from-the-root-route-while-internet-identity-initialization-and-the-initial-user-profile-query-are-unresolved",
+      "title": "Ensure the app never renders an empty screen during startup by rendering a visible full-screen loading UI from the root route while Internet Identity initialization and the initial user profile query are unresolved.",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-tanstack-router-auth-onboarding-route-guards-so-that-if-auth-profile-resolution-times-out-or-errors-the-router-renders-a-safe-fallback-ui-via-router-error-handling-instead-of-continuing-into-a-route-that-may-render-nothing",
+      "title": "Update TanStack Router auth/onboarding route guards so that if auth/profile resolution times out or errors, the router renders a safe fallback UI (via router error handling) instead of continuing into a route that may render nothing.",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-deterministic-startup-recovery-path-when-auth-profile-resolution-fails-provide-a-user-visible-option-to-reset-the-startup-session-e-g-reload-application-and-or-clear-any-persisted-url-session-routing-parameters-used-for-navigation-so-users-can-escape-a-broken-state",
+      "title": "Add a deterministic startup recovery path: when auth/profile resolution fails, provide a user-visible option to reset the startup session (e.g., reload application and/or clear any persisted URL/session routing parameters used for navigation) so users can escape a broken state.",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-lightweight-production-safe-diagnostics-for-the-startup-auth-resolution-path-to-help-identify-remaining-black-screen-causes-e-g-console-warnings-with-enough-context-to-distinguish-identity-init-vs-profile-fetch-vs-router-guard-stage",
+      "title": "Add lightweight, production-safe diagnostics for the startup/auth resolution path to help identify remaining black-screen causes (e.g., console warnings with enough context to distinguish identity init vs profile fetch vs router guard stage).",
+      "reqIds": [
+        "REQ-26"
       ],
       "version": 1
     }

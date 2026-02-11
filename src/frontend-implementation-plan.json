@@ -1,68 +1,102 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix black screen on open by moving auth/onboarding redirects into TanStack Router lifecycle",
+  "title": "Startup loading + fail-safe router guards to eliminate black screen",
   "requirements": [
     {
-      "id": "REQ-17",
-      "summary": "Remove imperative navigation from AppContent render and ensure the app always renders a visible loading/auth UI while auth/profile state resolves.",
+      "id": "REQ-23",
+      "summary": "Guarantee a visible full-screen startup loading UI from the root while Internet Identity and initial profile resolution are pending, regardless of initial route.",
       "acceptanceCriteria": [
-        "Opening the draft app no longer results in a black screen on first load.",
-        "frontend/src/App.tsx no longer calls router.navigate(...) during render (i.e., not inside conditional returns that return null).",
-        "When unauthenticated, the app renders a Login screen (or a loading screen while auth initializes) without rendering a blank page.",
-        "When authenticated but missing a user profile, the app routes to /onboarding without any render-loop/blank-screen behavior.",
-        "When authenticated and onboarding is complete, navigating to /onboarding redirects back to / without a blank screen."
+        "When the app first loads (hard refresh) and auth/profile state is still resolving, the user sees a full-screen loading UI (not a black/blank screen).",
+        "This loading UI is shown regardless of which route is initially loaded (e.g., '/', '/login', '/exercises').",
+        "The loading UI uses clear English user-facing text."
       ],
       "file_operations": [
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Refactor AppContent to remove all imperative navigation during render (remove router.navigate + return null branches). Always render either (a) a visible loading screen while Internet Identity and user profile are still resolving, or (b) RouterProvider once state is stable. Use the authorization component guidance for avoiding profile-setup flashes (actor-dependent loading state) where applicable; verify the component's usage instructions before implementing."
+          "description": "Add a root-level startup gate in RootComponent that renders the AppLoadingScreen (full-screen) until Internet Identity initialization is complete and (when authenticated) the initial user profile query is resolved; ensure this gate wraps Outlet so it applies to all initial routes. Use the authorization component guidance for auth/profile state sequencing and cache clearing patterns; verify the component's usage instructions before implementing."
         },
         {
           "path": "frontend/src/components/routing/AppLoadingScreen.tsx",
-          "operation": "create",
-          "description": "Add a reusable dark-theme loading screen component (EVRVEST-consistent) used during initial auth/profile resolution and as router pending UI; compose existing shadcn-ui primitives as needed (do not edit frontend/src/components/ui/*). Verify the component's usage instructions before implementing."
+          "operation": "modify",
+          "description": "Update the loading screen copy to be explicit English text about starting the app and loading authentication/profile (avoid vague/blank feel); keep it full-screen and theme-consistent. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/lib/routerAuthStore.ts",
+          "operation": "modify",
+          "description": "Extend the shared auth store to track deterministic startup resolution state needed by the root gate (e.g., resolved vs pending, and last-known phase), without changing immutable auth hooks. Ensure the store can represent 'authenticated but profile still resolving' distinctly from 'unauthenticated guest'. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
-      "id": "REQ-18",
-      "summary": "Implement auth/onboarding route guarding via TanStack Router route lifecycle (beforeLoad/loader redirects) instead of AppContent render logic.",
+      "id": "REQ-24",
+      "summary": "Make TanStack Router auth/onboarding guards fail-safe: on auth/profile resolution error/timeout, render a themed router fallback instead of proceeding into routes that may render nothing.",
       "acceptanceCriteria": [
-        "Redirect decisions for auth/onboarding are executed via TanStack Router route lifecycle (not via direct router.navigate calls inside AppContent render).",
-        "Directly entering the following URLs behaves correctly without blank screens: /login, /onboarding, /, /exercises, /plans (subject to auth/onboarding state)."
+        "If auth/profile resolution fails (e.g., timeout), the UI displays an error/fallback screen consistent with the dark EVRVEST theme (not a black/blank screen).",
+        "The fallback screen includes an English explanation and a way to recover (e.g., reload).",
+        "Route guards do not swallow failures in a way that allows the app to proceed into an indeterminate state with no visible UI."
       ],
       "file_operations": [
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Move auth/onboarding redirect rules into TanStack Router route lifecycle: add route-level guards (e.g., beforeLoad redirects) for (1) protected app routes under the layout to require authentication, (2) /onboarding to require authentication and redirect to / when profile exists, and (3) /login to redirect authenticated users to /onboarding when missing a profile or to / when onboarding complete. Provide router context derived from useInternetIdentity + useGetCallerUserProfile to enable guard decisions without using hooks inside beforeLoad. Configure router-level pending UI to use the new AppLoadingScreen. Use authorization component concepts for authenticated vs guest behavior and profile existence checks; verify the component's usage instructions before implementing."
+          "description": "Update beforeLoad guards (login/onboarding/layout) to stop swallowing waitUntilResolved failures: if auth/profile resolution rejects (timeout/error), rethrow an Error that will be handled by the router errorComponent/defaultErrorComponent (rather than continuing into the route). Keep redirects via beforeLoad/redirect only (no imperative navigation during render). Use the authorization component guidance for handling auth failures gracefully; verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/pages/LoginPage.tsx",
+          "path": "frontend/src/components/routing/RouteErrorFallback.tsx",
           "operation": "modify",
-          "description": "Remove/avoid component-level redirect logic (e.g., the useEffect navigate-to-/ when identity exists) so routing decisions are consistently handled by TanStack Router guards. Keep the login interaction intact via Internet Identity. Use authorization component login guidance (clearing cached data on logout is handled elsewhere) as a reference; verify the component's usage instructions before implementing."
+          "description": "Ensure fallback UI messaging is clear English and dark-theme consistent for startup/auth resolution failures (e.g., suggest reload/reset). Keep a visible recovery control and avoid exposing sensitive details. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/lib/routerAuthStore.ts",
+          "operation": "modify",
+          "description": "Add structured error/timeout context capture for router-guard waiting (e.g., store last phase and timestamp) so guards can throw meaningful, non-sensitive errors and the fallback UI can display an actionable message. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
-      "id": "REQ-19",
-      "summary": "Add a dark-theme fallback UI for unexpected routing/auth errors with clear English text and a retry action to prevent empty screens.",
+      "id": "REQ-25",
+      "summary": "Provide a deterministic, user-visible startup recovery action that resets startup session state and retries startup without ever showing a blank screen.",
       "acceptanceCriteria": [
-        "If an unexpected error occurs during initial auth/profile/routing resolution, the user sees a readable error state (not a blank screen).",
-        "The fallback provides at minimum: a short error message in English and a way to retry (e.g., reload button) without requiring developer tools."
+        "When startup resolution fails, the fallback UI provides a clearly labeled recovery action in English (e.g., “Reload Application”).",
+        "Invoking the recovery action results in the app attempting startup again and showing loading/fallback UI as appropriate (never blank)."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/routing/RouteErrorFallback.tsx",
-          "operation": "create",
-          "description": "Create an EVRVEST dark-theme error fallback UI component with clear English copy and a retry action (at minimum: reload button). Compose existing shadcn-ui components (read-only) for consistent styling. Verify the component's usage instructions before implementing."
+          "operation": "modify",
+          "description": "Enhance the recovery action to perform a deterministic 'startup reset' before reloading (e.g., clear any sessionStorage items used for persisted routing/guard waits and remove any persisted URL/session routing parameters used for navigation), then reload the application. Keep the button label in English (e.g., “Reload Application”). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/utils/urlParams.ts",
+          "operation": "modify",
+          "description": "Add/adjust a small utility to clear any persisted URL/session routing parameters used by the app’s navigation flow (sessionStorage + hash/query handling) so RouteErrorFallback can reliably reset startup routing state prior to reload. Verify the component's usage instructions before implementing."
         },
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Wire the fallback so the app never renders an empty screen: configure TanStack Router default error handling to render RouteErrorFallback for unexpected router errors, and add an explicit guard in AppContent for unexpected auth/profile resolution failures (e.g., profile query error) to render RouteErrorFallback instead of returning nothing. Keep visuals consistent with the existing dark theme. Verify the component's usage instructions before implementing."
+          "description": "Wire the enhanced fallback recovery behavior into router error handling by ensuring thrown startup/auth resolution errors reach RouteErrorFallback and do not transition into indeterminate routes. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-26",
+      "summary": "Add production-safe diagnostics for startup/auth resolution phases to identify where black-screen conditions originate, without exposing sensitive data.",
+      "acceptanceCriteria": [
+        "On startup issues, console logs clearly indicate which phase is blocked or failed (identity init, profile load, router guard wait).",
+        "Diagnostics do not expose sensitive user data."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/lib/routerAuthStore.ts",
+          "operation": "modify",
+          "description": "Add lightweight console.warn diagnostics (guarded to be production-safe) that log phase transitions and timeouts for waitUntilResolved (e.g., 'identity init pending', 'profile load pending', 'router guard timeout'), without logging principals, tokens, or profile contents. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add startup-phase console warnings in RootComponent for identity initialization and profile query resolution progression (identity init vs profile load vs 'router guard waiting'), ensuring no sensitive data is logged. Use the authorization component guidance for safe auth diagnostics and cache clearing expectations; verify the component's usage instructions before implementing."
         }
       ]
     }

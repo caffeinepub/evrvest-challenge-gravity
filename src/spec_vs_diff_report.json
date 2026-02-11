@@ -1,62 +1,27 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T23:29:22.941Z",
-  "summary": "The diff adds a global pending/loading UI and a dark-theme error fallback, and refactors router setup in App.tsx to use TanStack Router default pending/error components. However, the required auth/onboarding guarding is not implemented via TanStack Router route lifecycle; instead, imperative navigation is moved into LoginPage/OnboardingPage useEffects, and there is no evidence that direct-entry routes like '/', '/exercises', or '/plans' are guarded against unauthenticated or missing-profile states.",
+  "generatedAt": "2026-02-11T23:44:25.789Z",
+  "summary": "Diff adds a root-level pending loading UI (AppLoadingScreen) and a router-level error fallback (RouteErrorFallback) wired into TanStack Router. Route guards were updated to await a shared auth/profile resolution store (routerAuthStore) that times out and throws to trigger router error handling, and a recovery action clears startup-related state then reloads. Diagnostics were added primarily around router-guard timeouts with phase labeling.",
   "missing_requirements": [
     {
-      "id": "REQ-18",
-      "requirement": "Implement route-level guarding/redirect behavior using TanStack Router mechanisms (e.g., route beforeLoad/loader redirection or equivalent) so that authentication and onboarding redirects happen within the router lifecycle rather than from AppContent render logic.",
-      "reason": "The diff shows imperative redirects handled via useNavigate() inside page components (LoginPage/OnboardingPage) rather than route lifecycle hooks like beforeLoad/loader. No route definitions in App.tsx show beforeLoad/loader-based redirects/guards for auth or onboarding state.",
+      "id": "REQ-26",
+      "requirement": "Add lightweight, production-safe diagnostics for the startup/auth resolution path to help identify remaining black-screen causes (e.g., console warnings with enough context to distinguish identity init vs profile fetch vs router guard stage).",
+      "reason": "The diff clearly adds a router-guard timeout warning with phase context, but does not show additional diagnostics for other failure modes (e.g., explicit logging on identity initialization failure, profile fetch failure, or a distinct \"router guard waiting\" log beyond the timeout). Based on the provided snippets, diagnostics appear limited to the timeout path.",
       "evidence": [
-        "frontend/src/pages/LoginPage.tsx",
-        "frontend/src/pages/OnboardingPage.tsx",
-        "frontend/src/App.tsx"
-      ]
-    },
-    {
-      "id": "REQ-17",
-      "requirement": "When unauthenticated, the app renders a Login screen (or a loading screen while auth initializes) without rendering a blank page.",
-      "reason": "While a loading screen is added, there is no evidence of router-level protection that routes unauthenticated users to /login when they directly enter '/', '/exercises', or '/plans'. The route tree in App.tsx defines authenticated pages under the '/' layout but shows no auth guard/redirect on that layout or its children.",
-      "evidence": [
-        "frontend/src/App.tsx"
-      ]
-    },
-    {
-      "id": "REQ-17",
-      "requirement": "When authenticated but missing a user profile, the app routes to /onboarding without any render-loop/blank-screen behavior (including on direct entry to '/', '/exercises', '/plans').",
-      "reason": "Redirect-to-/onboarding logic appears only within LoginPage (after authentication) rather than as a router guard for other routes. There is no evidence of route-level handling to send an authenticated user without a profile to /onboarding when entering other URLs directly.",
-      "evidence": [
-        "frontend/src/pages/LoginPage.tsx",
-        "frontend/src/App.tsx"
-      ]
-    },
-    {
-      "id": "REQ-17",
-      "requirement": "When authenticated and onboarding is complete, navigating to /onboarding redirects back to / without a blank screen.",
-      "reason": "OnboardingPage uses useNavigate() in a useEffect to redirect when a profile exists, not a router lifecycle redirect. The requirement calls for routing/redirect behavior to be handled by the router lifecycle (and this also overlaps with REQ-18).",
-      "evidence": [
-        "frontend/src/pages/OnboardingPage.tsx"
+        "frontend/src/lib/routerAuthStore.ts"
       ]
     }
   ],
-  "hallucinated_features": [
-    {
-      "description": "Unrequested modifications to non-routing product pages (Dashboard/Profile/Upgrade) beyond the scope of fixing routing/redirect behavior.",
-      "reason": "BuildRequest explicitly limits scope to fixing routing/redirect behavior and preventing blank screens; the diff summary indicates changes to multiple pages unrelated to routing fixes.",
-      "evidence": [
-        "frontend-file-summaries.txt"
-      ]
-    }
-  ],
+  "hallucinated_features": [],
   "confidence": 0.72,
   "changed_files": [
     "frontend-file-summaries.txt",
     "frontend/src/App.tsx",
     "frontend/src/components/routing/AppLoadingScreen.tsx",
     "frontend/src/components/routing/RouteErrorFallback.tsx",
-    "frontend/src/pages/LoginPage.tsx",
-    "frontend/src/pages/OnboardingPage.tsx",
+    "frontend/src/lib/routerAuthStore.ts",
+    "frontend/src/utils/urlParams.ts",
     "project_state.json"
   ]
 }
